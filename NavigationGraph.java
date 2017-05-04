@@ -13,7 +13,7 @@ public class NavigationGraph implements GraphADT<Location, Path> {
 	
 	List<Path> listPath;
 	
-	boolean[][] visited;
+	//boolean[][] visited;
 	
 	private List<GraphNode<Location, Path>> listNodes;
 	
@@ -24,6 +24,8 @@ public class NavigationGraph implements GraphADT<Location, Path> {
 		
 		listLocation = new ArrayList<Location>();
 		listPath = new ArrayList<Path>();
+		
+		//visited = new boolean[100][100];
 		
 		listNodes = new ArrayList<GraphNode<Location, Path>>();
 		numVertex = 0;
@@ -181,7 +183,66 @@ public class NavigationGraph implements GraphADT<Location, Path> {
 	 */
 	public List<Path> getShortestRoute(Location src, Location dest, String edgePropertyName)
 	{
-		//PriorityQueue<>
+		//double[] weight = new double[numVertex];
+		//boolean[] visited = new boolean[numVertex];
+		
+		int c = 0;
+		
+		if(edgePropertyName.equals(edgePropertyNames[1]))
+			c = 1;
+			
+		List<PQWrapper> pqentry = new ArrayList<PQWrapper>();
+		
+		for(int i = 0; i < listNodes.size(); i++)
+		{
+			pqentry.add(new PQWrapper(listNodes.get(i)));
+		}
+		
+		GraphNode<Location, Path> currNode = null;
+		PQWrapper currWrapper = null;
+		for(int i = 0; i < listNodes.size(); i++)
+		{
+			if(listNodes.get(i).getVertexData().equals(src))
+			{
+				currNode = listNodes.get(i);
+//				weight[curr.getId()] = 0;
+				currWrapper = pqentry.get(currNode.getId());
+				currWrapper.setWeightTo((double)0);
+				break;
+			}
+		}
+		
+		PriorityQueue<PQWrapper> pq = new PriorityQueue<PQWrapper>();
+		pq.add(currWrapper);
+		
+		while(!pq.isEmpty())
+		{
+			currWrapper = pq.remove();
+			currWrapper.setVisitedTrue();
+			
+			for(int i = 0; i < currWrapper.getNode().getOutEdges().size(); i++)
+			{
+				Location succLoc = currWrapper.getNode().getOutEdges().get(i).getDestination();
+				GraphNode<Location, Path> succNode = null;
+				for(int j = 0; j < listNodes.size(); j++)
+				{
+					if(listNodes.get(i).getVertexData().equals(succLoc))
+						succNode = listNodes.get(j);
+				}
+				
+				PQWrapper succ = new PQWrapper(succNode);
+				if(succ.weight > 0)
+				{
+					succ.setWeightTo(currWrapper.weight + 
+							currWrapper.getNode().getOutEdges().get(i).getProperties().get(c));
+					succ.setPredecessor(currWrapper);
+					if(!pq.contains(succ))
+						pq.add(succ);
+				}
+			}
+		}
+		
+		List<Path> shortestRoute= new ArrayList<>();
 		
 		return null;
 	}
