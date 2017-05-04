@@ -1,5 +1,4 @@
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.PriorityQueue;
 
@@ -9,12 +8,25 @@ public class NavigationGraph implements GraphADT<Location, Path> {
 	
 	String[] edgePropertyNames;
 	//PriorityQueue<Location> vertexQueue;
+	
 	List<Location> listLocation;
+	
+	List<Path> listPath;
+	
+	boolean[][] visited;
+	
+	private List<GraphNode<Location, Path>> listNodes;
+	
+	private int numVertex;
 	
 	public NavigationGraph(String[] edgePropertyNames) {
 		this.edgePropertyNames = edgePropertyNames;
-		//vertexQueue = new PriorityQueue<Location>();
+		
 		listLocation = new ArrayList<Location>();
+		listPath = new ArrayList<Path>();
+		
+		listNodes = new ArrayList<GraphNode<Location, Path>>();
+		numVertex = 0;
 	}
 
 	
@@ -27,9 +39,9 @@ public class NavigationGraph implements GraphADT<Location, Path> {
 	 */
 	public Location getLocationByName(String name) {
 		
-		for(int i = 0; i < listLocation.size(); i++)
-			if(listLocation.get(i).getName().equals(name))
-				return listLocation.get(i);
+		for(int i = 0; i < listNodes.size(); i++)
+			if(listNodes.get(i).getVertexData().getName().equals(name))
+				return listNodes.get(i).getVertexData();
 		return null; //TODO: implement correctly. 
 	}
 
@@ -42,7 +54,13 @@ public class NavigationGraph implements GraphADT<Location, Path> {
 	public void addVertex(Location vertex)
 	{
 		listLocation.add(vertex);
+		
+		GraphNode<Location, Path> node = new GraphNode<Location, Path>(vertex, numVertex);
+		listNodes.add(node);
+		numVertex++;
+		
 	}
+	
 
 	/**
 	 * Creates a directed edge from src to dest
@@ -57,6 +75,17 @@ public class NavigationGraph implements GraphADT<Location, Path> {
 	public void addEdge(Location src, Location dest, Path edge)
 	{
 		
+		//List<Double> pathProperties = new ArrayList<Double>();
+		
+		//Path path = new Path(src, dest, pathProperties);
+		
+		for(int i = 0; i < listNodes.size(); i++)
+		{
+			if(listNodes.get(i).getVertexData().equals(src))
+				listNodes.get(i).addOutEdge(edge);
+		}
+		
+		listPath.add(edge);
 	}
 
 	/**
@@ -80,6 +109,10 @@ public class NavigationGraph implements GraphADT<Location, Path> {
 	 */
 	public Path getEdgeIfExists(Location src, Location dest)
 	{
+		for(int i = 0; i < listPath.size(); i++)
+			if(listPath.get(i).getSource().equals(src) &&
+					listPath.get(i).getDestination().equals(dest))
+				return listPath.get(i);
 		
 		return null;
 	}
@@ -93,11 +126,20 @@ public class NavigationGraph implements GraphADT<Location, Path> {
 	 */
 	public List<Path> getOutEdges(Location src)
 	{
-		List<Path> list = new ArrayList<Path>();
+//		List<Path> list = new ArrayList<Path>();
+//		for(int i = 0; i < listPath.size(); i++)
+//			if(src.equals(listPath.get(i).getSource()))
+//				list.add(listPath.get(i));
 		
+		GraphNode<Location, Path> node = null;
 		
+		for(int i = 0; i < listNodes.size(); i++)
+		{
+			if(src.equals(listNodes.get(i).getVertexData()))
+				node = listNodes.get(i);
+		}
 		
-		return list;
+		return node.getOutEdges();
 	}
 
 	/**
@@ -110,6 +152,18 @@ public class NavigationGraph implements GraphADT<Location, Path> {
 	public List<Location> getNeighbors(Location vertex)
 	{
 		List<Location> list = new ArrayList<Location>();
+		
+		GraphNode<Location, Path> node = null;
+		
+		for(int i = 0; i < listNodes.size(); i++)
+		{
+			if(vertex.equals(listNodes.get(i).getVertexData()))
+				node = listNodes.get(i);
+		}
+		
+		for(int i = 0; i < node.getOutEdges().size(); i++)
+			list.add(node.getOutEdges().get(i).getDestination());
+		
 		return list;
 	}
 
@@ -127,6 +181,8 @@ public class NavigationGraph implements GraphADT<Location, Path> {
 	 */
 	public List<Path> getShortestRoute(Location src, Location dest, String edgePropertyName)
 	{
+		//PriorityQueue<>
+		
 		return null;
 	}
 
