@@ -1,3 +1,12 @@
+/////////////////////////////////////////////////////////////////////////////
+// Semester:         CS367 Spring 2017 
+// PROJECT:          p5
+// FILE:             MapApp.java
+//
+// TEAM:    Team 193
+// Authors: Margaret Cook, Jessica Fernandes
+// Author1: Margaret Cook,mcook24@wisc.edu,mcook24,lecture 002)
+// Author2: Jessica Fernandes,jfernandes2@wisc.edu,jfernandes2,lecture 002
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
