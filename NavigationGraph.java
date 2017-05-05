@@ -183,21 +183,35 @@ public class NavigationGraph implements GraphADT<Location, Path> {
 	 */
 	public List<Path> getShortestRoute(Location src, Location dest, String edgePropertyName)
 	{
-		//double[] weight = new double[numVertex];
-		//boolean[] visited = new boolean[numVertex];
+		boolean done = false;
 		
+		//Set which edge property to use depending on the edgeProperteName parameter
 		int c = 0;
-		
 		if(edgePropertyName.equals(edgePropertyNames[1]))
 			c = 1;
-			
+		
+		List<Path> shortestRoute= new ArrayList<Path>();
+		//Create list for Wrapper class objects
 		List<PQWrapper> pqentry = new ArrayList<PQWrapper>();
 		
+		//Fill list for Wrapper class objects
 		for(int i = 0; i < listNodes.size(); i++)
 		{
 			pqentry.add(new PQWrapper(listNodes.get(i)));
 		}
 		
+		//Find vertex for the destination
+		GraphNode<Location, Path> destNode = null;
+		for(int i = 0; i < listNodes.size(); i++)
+		{
+			if(listNodes.get(i).getVertexData().equals(dest))
+			{
+				destNode = listNodes.get(i);
+				break;
+			}
+		}
+		
+		//Set curr to the starting vertex
 		GraphNode<Location, Path> currNode = null;
 		PQWrapper currWrapper = null;
 		for(int i = 0; i < listNodes.size(); i++)
@@ -205,32 +219,37 @@ public class NavigationGraph implements GraphADT<Location, Path> {
 			if(listNodes.get(i).getVertexData().equals(src))
 			{
 				currNode = listNodes.get(i);
-//				weight[curr.getId()] = 0;
 				currWrapper = pqentry.get(currNode.getId());
+				//Set weight for starting vertex to 0
 				currWrapper.setWeightTo((double)0);
 				break;
 			}
 		}
 		
+		//Add starting vertex to the priority queue
 		PriorityQueue<PQWrapper> pq = new PriorityQueue<PQWrapper>();
 		pq.add(currWrapper);
 		
-		while(!pq.isEmpty())
+		while(!done)
 		{
+			//remove 
 			currWrapper = pq.remove();
 			currWrapper.setVisitedTrue();
 			
 			for(int i = 0; i < currWrapper.getNode().getOutEdges().size(); i++)
 			{
 				Location succLoc = currWrapper.getNode().getOutEdges().get(i).getDestination();
+				
 				GraphNode<Location, Path> succNode = null;
+				
 				for(int j = 0; j < listNodes.size(); j++)
 				{
-					if(listNodes.get(i).getVertexData().equals(succLoc))
+					if(listNodes.get(j).getVertexData().equals(succLoc))
 						succNode = listNodes.get(j);
 				}
 				
-				PQWrapper succ = new PQWrapper(succNode);
+				PQWrapper succ = pqentry.get(succNode.getId());
+				
 				if(succ.weight > 0)
 				{
 					succ.setWeightTo(currWrapper.weight + 
@@ -240,11 +259,18 @@ public class NavigationGraph implements GraphADT<Location, Path> {
 						pq.add(succ);
 				}
 			}
+			
+			Path path = getEdgeIfExists(currWrapper.getNode().getVertexData(), 
+											pq.peek().getNode().getVertexData());
+			shortestRoute.add(path);
+			
+			//End loop if queue is empty or the queue read in the destination
+			if(pq.contains(destNode) || pq.isEmpty())
+				done = true;
 		}
 		
-		List<Path> shortestRoute= new ArrayList<>();
 		
-		return null;
+		return shortestRoute;
 	}
 
 	/**
@@ -264,7 +290,18 @@ public class NavigationGraph implements GraphADT<Location, Path> {
 	 */
 	public String toString()
 	{
-		return null;
+		String string = "";
+		
+		for(int i = 0; i < listNodes.size(); i++)
+		{
+			string += listNodes.get(i).getVertexData().toString();
+			for(int j = 0; j < listNodes.get(i).getOutEdges().size(); j++)
+				string += listNodes.get(i).getOutEdges().get(j).toString() + "\n";
+			
+			string += "\n";
+		}
+		
+		return string;
 	}
 
 }
