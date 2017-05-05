@@ -7,13 +7,10 @@ public class NavigationGraph implements GraphADT<Location, Path> {
 	//TODO: Implement all methods of GraphADT
 	
 	String[] edgePropertyNames;
-	//PriorityQueue<Location> vertexQueue;
-	
+
 	List<Location> listLocation;
 	
 	List<Path> listPath;
-	
-	//boolean[][] visited;
 	
 	private List<GraphNode<Location, Path>> listNodes;
 	
@@ -24,8 +21,6 @@ public class NavigationGraph implements GraphADT<Location, Path> {
 		
 		listLocation = new ArrayList<Location>();
 		listPath = new ArrayList<Path>();
-		
-		//visited = new boolean[100][100];
 		
 		listNodes = new ArrayList<GraphNode<Location, Path>>();
 		numVertex = 0;
@@ -44,7 +39,7 @@ public class NavigationGraph implements GraphADT<Location, Path> {
 		for(int i = 0; i < listNodes.size(); i++)
 			if(listNodes.get(i).getVertexData().getName().equals(name))
 				return listNodes.get(i).getVertexData();
-		return null; //TODO: implement correctly. 
+		return null;  
 	}
 
 	/**
@@ -76,10 +71,6 @@ public class NavigationGraph implements GraphADT<Location, Path> {
 	 */
 	public void addEdge(Location src, Location dest, Path edge)
 	{
-		
-		//List<Double> pathProperties = new ArrayList<Double>();
-		
-		//Path path = new Path(src, dest, pathProperties);
 		
 		for(int i = 0; i < listNodes.size(); i++)
 		{
@@ -127,12 +118,7 @@ public class NavigationGraph implements GraphADT<Location, Path> {
 	 * @return List of edges of type E
 	 */
 	public List<Path> getOutEdges(Location src)
-	{
-//		List<Path> list = new ArrayList<Path>();
-//		for(int i = 0; i < listPath.size(); i++)
-//			if(src.equals(listPath.get(i).getSource()))
-//				list.add(listPath.get(i));
-		
+	{	
 		GraphNode<Location, Path> node = null;
 		
 		for(int i = 0; i < listNodes.size(); i++)
@@ -232,34 +218,37 @@ public class NavigationGraph implements GraphADT<Location, Path> {
 		
 		while(!done)
 		{
-			//remove 
+			//Remove the vertex with the smallest weight 
 			currWrapper = pq.remove();
+			//Set visited as true
 			currWrapper.setVisitedTrue();
 			
+			//Traverse through the outer edges of vertex
 			for(int i = 0; i < currWrapper.getNode().getOutEdges().size(); i++)
 			{
+				//Find one of the successors in list of nodes in list
 				Location succLoc = currWrapper.getNode().getOutEdges().get(i).getDestination();
-				
 				GraphNode<Location, Path> succNode = null;
-				
 				for(int j = 0; j < listNodes.size(); j++)
 				{
 					if(listNodes.get(j).getVertexData().equals(succLoc))
 						succNode = listNodes.get(j);
 				}
-				
 				PQWrapper succ = pqentry.get(succNode.getId());
 				
+				//If weight of successor is more than 0, proceed
 				if(succ.weight > 0)
 				{
 					succ.setWeightTo(currWrapper.weight + 
 							currWrapper.getNode().getOutEdges().get(i).getProperties().get(c));
 					succ.setPredecessor(currWrapper);
+					//Only add successor if its not in priority queue
 					if(!pq.contains(succ))
 						pq.add(succ);
 				}
 			}
 			
+			//Find edge between curr and the node with the smallest weight, add to list
 			Path path = getEdgeIfExists(currWrapper.getNode().getVertexData(), 
 											pq.peek().getNode().getVertexData());
 			shortestRoute.add(path);
